@@ -1,0 +1,93 @@
+init 999 python:
+
+    # 1) Делаем любой GalleryItem "всегда открыт"
+    def _always_unlocked(self):
+        try:
+            self.num_unlocked = len(getattr(self, "images", []))
+        except Exception:
+            self.num_unlocked = 0
+        self.is_locked = False
+
+    def _unlock_gallery():
+        try:
+            GalleryItem.refresh_lock = _always_unlocked
+        except Exception:
+            pass
+
+        if "gallery_items" in globals():
+            for it in gallery_items:
+                try:
+                    _always_unlocked(it)
+                except Exception:
+                    pass
+                for img in getattr(it, "images", []):
+                    try:
+                        renpy.mark_image_seen(tuple(img.split()))
+                    except:
+                        try:
+                            renpy.mark_image_seen(img)
+                        except:
+                            pass
+
+    def _unlock_replays():
+        if "Replay_items" in globals():
+            for it in Replay_items:
+                try:
+                    renpy.mark_label_seen(it.replay)
+                except:
+                    pass
+
+    def _set_menu_flags():
+        persistent.game_finished = True
+        persistent.gamestarted   = True
+
+        persistent.tutory_chapter  = True
+        persistent.katsumi_chapter = True
+        persistent.itaiero_chapter = True
+        persistent.mila_chapter    = True
+        persistent.ayaka_chapter   = True
+
+        persistent.katsumi_passed  = True
+        persistent.mila_passed     = True
+        persistent.tutory_passed   = True
+        persistent.bully_passed    = True
+        persistent.ayaka_passed    = True
+        persistent.itaiero_passed  = True
+
+        persistent.katsumi_passed_extra = True
+        persistent.mila_passed_extra    = True
+        persistent.tutory_passed_extra  = True
+        persistent.bully_passed_extra   = True
+        persistent.ayaka_passed_extra   = True
+
+        persistent.katsumi_seconddate = True
+        persistent.mila_seconddate    = True
+        persistent.tutory_seconddate  = True
+        persistent.bully_seconddate   = True
+        persistent.ayaka_seconddate   = True
+
+        persistent.cg_gallery_unlocked     = True
+        persistent.replay_gallery_unlocked = True
+        persistent.dates_unlocked          = True
+
+    def force_unlock_all(*args, **kwargs):
+        _unlock_gallery()
+        _unlock_replays()
+        _set_menu_flags()
+        renpy.save_persistent()
+        renpy.log("unlock.rpy: ALL UNLOCKED")
+
+    config.start_callbacks.append(force_unlock_all)
+    config.after_load_callbacks.append(force_unlock_all)
+
+
+
+"""
+init 999:
+    screen extras():
+        tag menu
+
+        imagebutton auto "gui/button/gallery_%s.png" action ShowMenu("gallery") xpos 660 ypos 530
+        imagebutton auto "gui/button/replay_%s.png"  action ShowMenu("replay_gallery") xpos 1030 ypos 530
+        imagebutton auto "gui/button/dates_%s.png"   action ShowMenu("gallery_dates") xpos 1400 ypos 530
+"""
